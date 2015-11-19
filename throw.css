@@ -1,0 +1,18 @@
+#cv{
+	background: rgba(253, 234, 87, 0.68);
+	display: block;
+	margin:0 auto;
+
+}
+*{
+	margin:0px;
+}
+#btn{
+	width:100px;
+	height: 50px;
+	border-radius: 10px;
+	background-color:  #FDEC67;
+	font-size: 25px;
+	color:#78C7EF;
+
+}

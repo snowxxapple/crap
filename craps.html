@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang='zh'>
+
+<head>
+    <!-- 主要使用switch语句 以及画布来完成 用画布画圆角矩形的方法为把圆角矩形拆成4个钩子-->
+    <meta charset='utf-8'>
+    <title>掷骰子</title>
+    <style type="text/css">
+    #cv {
+        background: rgba(253, 234, 87, 0.68);
+        display: block;
+        position:absolute;
+        /*margin: 0 auto;*/
+    }
+    
+    * {
+        margin: 0px;
+    }
+    
+    #btn {
+        width: 100px;
+        height: 50px;
+        border-radius: 10px;
+        background-color: #FDEC67;
+        font-size: 25px;
+        color: #78C7EF;
+    }
+    </style>
+</head>
+
+<body>
+    <h1 style='text-align:center;margin:0px;' id='title'>掷骰子</h1>
+    <canvas id='cv' height='400px' width='800px'></canvas>
+    <div style='background:#efc;zIndex=2;position:absolute;' id='ruleDiv'>
+        <h3 style='text-align:center;margin:5px;'>游戏规则</h3>
+        <p style='margin:8px;font-size:20px;'>若第一次抛点数和为7或11，那么玩家胜；若第一次抛出点数和为2、3或12，那么玩家输；若第一次抛出点数为其他结果，则玩家要继续抛，如果抛出7，玩家输，若抛出上一次的点数，那么玩家赢，若为其他，那么玩家继续抛！快来试试你的手气吧！</p>
+    </div>
+    <div style='width:800px;height:120px;margin:auto;text-align:center;margin-top:10px;background:#78C7EF;padding-top:10px;position:absolute;' id='btnDiv'>
+        <button id='btn' style='margin-bottom:10px;margin-top:10px;'>Start!</button>
+        <br>
+        <span style='font-size:25px;padding:5px;'>点数：</span><span id='point' style='font-size:25px;margin:5px;'></span>
+    </div>
+</body>
+<script type="text/javascript">
+var disX = 100; //第一个骰子的位置
+var disY = 100;
+var dWidth = 100; //骰子的大小
+var dHeight = 100;
+var dx;
+var dy;
+var radius = 6;
+var point; //存玩家上次抛出的点数
+var firstTurn = true; //是否为本轮游戏的第一次投掷
+var context = document.getElementById('cv').getContext('2d');
+window.onload = function() {
+
+    var oBtn = document.getElementById('btn');
+    var oPoint = document.getElementById('point');
+    var oStage = document.getElementById('stage');
+    var oOutCome = document.getElementById('outCome');
+    var ruleX = document.getElementById('cv').width * 0.6;
+    var ruleDiv = document.getElementById('ruleDiv');
+    var btnDiv=document.getElementById('btnDiv');
+
+    document.getElementById('cv').style.left=(document.documentElement.clientWidth-document.getElementById('cv').width)*0.5+'px';
+    // ruleDiv.style.left = (window.screen.availWidth - document.getElementById('cv').width) * 0.5 + ruleX + 'px';
+    ruleDiv.style.left = (document.documentElement.clientWidth- document.getElementById('cv').width) * 0.5 + ruleX + 'px';
+
+    document.getElementById('title').style.height = 30 + 'px';
+    document.getElementById('title').style.marginTop = 20 + 'px';
+    document.getElementById('title').style.marginBottom = 20 + 'px';
+    ruleDiv.style.top = parseInt(document.getElementById('title').style.height) + parseInt(document.getElementById('title').style.marginTop) + parseInt(document.getElementById('title').style.marginBottom) + 10 + 'px';
+    ruleDiv.style.height = 380 + 'px';
+    ruleDiv.style.width = 300 + 'px';
+    document.getElementById('cv').style.height=400+'px';
+    btnDiv.style.top=parseInt(document.getElementById('title').style.height) + parseInt(document.getElementById('title').style.marginTop) + parseInt(document.getElementById('title').style.marginBottom) + parseInt(document.getElementById('cv').style.height)+ 'px';
+    btnDiv.style.left=document.getElementById('cv').offsetLeft+'px';
+    var rand1 = Math.floor(Math.random() * 6) + 1;
+    dx = disX;
+    dy = disY;
+    drawFace(rand1);
+
+    var rand2 = Math.floor(Math.random() * 6) + 1;
+    dx = disX + 150;
+    drawFace(rand2);
+
+
+    btn.onclick = function() {
+        //清除原来的点数 清除提示信息
+        context.clearRect(disX-10, disY + dHeight, 400, 300);
+        context.clearRect(disX-10, disY-10, dWidth+60, dHeight+60);
+        context.clearRect(disX+150-10,disY-10,dWidth+60,dHeight+60);
+        //生成随机数 画骰子
+        var sum; //存玩家当前抛出的点数
+        var num = 1 + Math.floor(Math.random() * 6); //生成1-6的随机数
+        sum = num;
+        dx = disX;
+        dy = disY;
+        drawFace(num);
+        dx = disX + 150;
+        console.log(dx);
+        num = 1 + Math.floor(Math.random() * 6);
+        sum = sum + num;
+        drawFace(num);
+        console.log(dx);
+        if (firstTurn) {
+            oPoint.innerHTML = ' ';
+            switch (sum) {
+                case 7:
+                case 11:
+                    context.font = 'bold 50px sans-serif';
+                    context.fillStyle = 'green';
+                    context.fillText('You Win!', disX, disY + dHeight + 100);
+                    oPoint.innerHTML = sum;
+                    break;
+                case 2:
+                case 3:
+                case 12:
+                    context.font = 'bold 50px sans-serif';
+                    context.fillStyle = 'red';
+                    context.fillText('You Lose!', disX, disY + dHeight + 100);
+                    oPoint.innerHTML = sum;
+                    break;
+                default:
+                    context.font = 'bold 50px sans-serif';
+                    context.fillStyle = 'pink';
+                    context.fillText('Once More!', disX, disY + dHeight + 100);
+                    oPoint.innerHTML = sum;
+                    point = sum;
+                    firstTurn = false;
+            }
+        } else {
+
+            switch (sum) {
+                case point:
+                    oPoint.innerHTML = sum;
+                    context.font = 'bold 50px sans-serif';
+                    context.fillStyle = 'green';
+                    context.fillText('You Win!', disX, disY + dHeight + 100);
+                    firstTurn = true;
+                    break;
+                case 7:
+                    oPoint.innerHTML = sum;
+                    context.font = 'bold 50px sans-serif';
+                    context.fillStyle = 'red';
+                    context.fillText('You Lose!', disX, disY + dHeight + 100);
+                    firstTurn = true;
+                    break;
+                default:
+                    context.font = 'bold 50px sans-serif';
+                    context.fillStyle = 'pink';
+                    context.fillText('Once More!', disX, disY + dHeight + 100);
+                    oPoint.innerHTML = sum;
+                    point = sum;
+                    firstTurn = false;
+                    break;
+            }
+        }
+    }
+}
+
+function drawFace(point) {
+   
+    //画骰子轮廓 圆角矩形的画法
+    context.lineWidth = 5;
+    context.strokeStyle = 'white';
+    context.fillStyle = 'white';
+    context.beginPath();
+    context.moveTo(dx + radius, dy);
+    context.arcTo(dx + dWidth, dy, dx + dWidth, dy + dHeight, 10);
+    context.arcTo(dx + dWidth, dy + dHeight, dx, dy + dHeight, 10);
+    context.arcTo(dx, dy + dHeight, dx, dy, 10);
+    context.arcTo(dx, dy, dx + dWidth, dy, 10);
+    context.closePath();
+    context.shadowOffsetX = 5;
+    context.shadowOffsetY = 5;
+    context.shadowBlur = 4;
+    context.shadowColor = 'grey';
+    context.stroke();
+    context.fill();
+    //画骰子点数
+    switch (point) {
+        case 1:
+            draw1();
+            break;
+        case 2:
+            draw2();
+            break;
+        case 3:
+            draw2();
+            draw1();
+            break;
+        case 4:
+            draw4();
+            break;
+        case 5:
+            draw4();
+            draw1();
+            break;
+        case 6:
+            draw4();
+            draw2mid();
+            break;
+    }
+}
+
+function draw1() {
+    context.fillStyle = 'red';
+    context.shadowOffsetX = 0; //上面给轮廓填上的阴影，在画点是要清掉，否则点数也会有阴影显示
+    context.shadowOffsetY = 0;
+    context.beginPath();
+    context.arc(dx + 0.5 * dWidth, dy + 0.5 * dHeight, radius, 0, Math.PI * 2, true);
+    context.closePath();
+    context.fill();
+}
+
+function draw2() {
+    context.fillStyle = 'red';
+    context.shadowOffsetX = 0;
+    context.shadowOffsetY = 0;
+    var dotX1 = dx + 3 * radius;
+    var dotY1 = dy + 3 * radius;
+    var dotX2 = dx + dWidth - 3 * radius;
+    var dotY2 = dy + dHeight - 3 * radius;
+    context.beginPath();
+    context.arc(dotX1, dotY1, radius, 0, Math.PI * 2, true);
+    context.arc(dotX2, dotY2, radius, 0, Math.PI * 2, true);
+    context.closePath();
+    context.fill();
+
+}
+
+function draw4() {
+    context.fillStyle = 'blue';
+    context.shadowOffsetX = 0;
+    context.shadowOffsetY = 0;
+    var dotX1 = dx + 3 * radius;
+    var dotY1 = dy + 3 * radius;
+    var dotX2 = dx + dWidth - 3 * radius;
+    var dotY2 = dy + dHeight - 3 * radius;
+    context.beginPath();
+    context.arc(dotX1, dotY1, radius, 0, Math.PI * 2, true);
+    context.closePath();
+    context.fill();
+    context.beginPath();
+    context.arc(dotX2, dotY2, radius, 0, Math.PI * 2, true);
+    context.closePath();
+    context.fill();
+    var dotX3 = dx + dWidth - 3 * radius;
+    var dotY3 = dy + 3 * radius;
+    var dotX4 = dx + 3 * radius;
+    var dotY4 = dy + dHeight - 3 * radius;
+    context.beginPath();
+    context.arc(dotX3, dotY3, radius, 0, Math.PI * 2, true);
+    context.closePath();
+    context.fill();
+    context.beginPath();
+    context.arc(dotX4, dotY4, radius, 0, Math.PI * 2, true);
+    context.closePath();
+    context.fill();
+}
+
+function draw2mid() {
+    context.fillStyle = 'blue';
+    context.shadowOffsetX = 0;
+    context.shadowOffsetY = 0;
+    var dotX1 = dx + 3 * radius;
+    var dotY1 = dy + 0.5 * dHeight;
+    var dotX2 = dx + dWidth - 3 * radius;
+    var dotY2 = dy + 0.5 * dHeight;
+    context.beginPath();
+    context.arc(dotX1, dotY1, radius, 0, Math.PI * 2, true);
+    context.arc(dotX2, dotY2, radius, 0, Math.PI * 2, true);
+    context.closePath();
+    context.fill();
+}
+</script>
+
+</html>
